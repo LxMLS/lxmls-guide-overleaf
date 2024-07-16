@@ -1,0 +1,278 @@
+Linear Algebra provides a compact way of representing and operating on sets of linear equations.
+
+
+\begin{equation*}
+\sysdelim\{.\systeme{4x_{1}-5x_{2}=-13,-2x_{1}+3x_{2}=9}
+\end{equation*}
+
+This is a system of linear equations in 2 variables. In matrix notation we can write the system more compactly as 
+\begin{equation*}
+\textbf{A}\textbf{x}=\textbf{b}
+\end{equation*}
+with
+\begin{equation*}
+\textbf{A}= \left[ \begin{array}{cc}
+4 & -5 \\
+-2 & 3 \\
+\end{array} \right], \text{	} \textbf{b}= \left[ \begin{array}{c}
+-13 \\
+9 \\
+\end{array}\right]
+\end{equation*}
+
+\subsection{Notation}
+
+We use the following notation:
+
+\begin{itemize}
+
+\item By $\textbf{A} \in \mathbb{R}^{m \times n}$, we denote a {\bf matrix} with $m$ rows and $n$ columns, where the 
+entries of A are real numbers.
+
+\item By $\textbf{x} \in \mathbb{R}^{n}$, we denote a {\bf vector} with $n$ entries. A vector can also be thought of as a matrix with $n$ rows and $1$ column, known as a {\bf column vector}. A {\bf row vector} --- a matrix with 1 row and $n$ columns is denoted as $\textbf{x}^{T}$, the transpose of $\textbf{x}$.
+
+\item The $i$th element of a vector $\textbf{x}$ is denoted $x_{i}$:
+
+\begin{equation*}
+\textbf{x} = \left[\begin{array}{c}
+x_{1} \\
+x_{2} \\
+\vdots \\
+x_{n}
+\end{array}\right].
+\end{equation*}
+\end{itemize}
+
+\begin{exercise}
+In the rest of the school we will represent both matrices and vectors as numpy arrays. You can create arrays in different ways, one possible way is to create an array of zeros.
+\begin{python}
+import numpy as np
+m = 3
+n = 2
+a = np.zeros([m,n])
+print(a)
+[[ 0.  0.]
+ [ 0.  0.]
+ [ 0.  0.]]
+\end{python}
+
+\noindent You can check the shape and the data type of your array using the following commands:
+\begin{python}
+print(a.shape)
+(3, 2)
+print(a.dtype.name)
+float64
+\end{python}
+This shows you that ``a'' is an 3*2 array of type float64. By default, arrays contain 64~bit\footnotemark\footnotetext{On your computer, particularly if you have an older computer, \code{int} might denote 32~bits integers} floating point numbers. You can specify the particular array type by using the keyword dtype.
+
+\begin{python}
+a = np.zeros([m,n],dtype=int)
+print(a.dtype)
+int64
+\end{python}
+
+\smallskip
+
+\noindent You can also create arrays from lists of numbers:
+\begin{python}
+a = np.array([[2,3],[3,4]])
+print(a)
+[[2 3]
+ [3 4]]
+\end{python}
+
+There are many more ways to create arrays in numpy and we will get to see them as we progress in the classes.
+
+\end{exercise}
+
+\subsection{Some Matrix Operations and Properties}
+%\gka{May be should divide into subsections }
+\begin{itemize}
+\item Product of two matrices $\textbf{A} \in \mathbb{R}^{m\times n}$ and $\textbf{B} \in \mathbb{R}^{n\times p}$
+is the matrix $\textbf{C}=\textbf{AB} \in \mathbb{R}^{m\times p}$, where 
+\begin{equation*}
+C_{ij}=\sum\limits_{k=1}^{n}A_{ik}B_{kj}.
+\end{equation*}
+
+\begin{exercise}
+You can multiply two matrices by looping over both indexes and multiplying the individual entries.
+\begin{python}
+a = np.array([[2,3],[3,4]])
+b = np.array([[1,1],[1,1]])
+a_dim1, a_dim2 = a.shape
+b_dim1, b_dim2 = b.shape
+c = np.zeros([a_dim1,b_dim2])
+for i in range(a_dim1):
+   for j in range(b_dim2):
+       for k in range(a_dim2):
+          c[i,j] += a[i,k]*b[k,j]
+print(c)
+\end{python}
+
+This is, however, cumbersome and inefficient. Numpy supports matrix multiplication with the dot function:
+
+\begin{python}
+d = np.dot(a,b)
+print(d)
+\end{python}
+
+\textbf{Important note:} with numpy, you must use \code{dot} to get matrix multiplication, the expression {a * b} denotes element-wise multiplication.
+\end{exercise}
+
+\item Matrix multiplication is associative: $(\textbf{AB})\textbf{C}= \textbf{A}(\textbf{BC})$.
+\item Matrix multiplication is distributive: $\textbf{A}(\textbf{B}+\textbf{C})= \textbf{AB} + \textbf{AC}$.
+\item Matrix multiplication is (generally) not commutative : $\textbf{AB} \neq \textbf{BA}$.
+\item Given two vectors $\textbf{x},\textbf{y} \in \mathbb{R}^{n}$ the product $\textbf{x}^{T}\textbf{y}$, called {\bf inner product}
+or {\bf dot product}, is given by
+\begin{equation*}
+\textbf{x}^{T}\textbf{y} \in \mathbb{R} = \left[\begin{array}{cccc}
+x_{1}&x_{2}&\ldots&x_{n}\end{array}\right] \left[\begin{array}{c}
+y_{1} \\
+y_{2} \\
+\vdots \\
+y_{n}
+\end{array}\right] = \sum\limits_{i=1}^{n}x_{i}y_{i}.
+\end{equation*}
+
+\begin{python}
+a = np.array([1,2])
+b = np.array([1,1])
+np.dot(a,b)
+\end{python}
+
+\item Given vectors $\textbf{x} \in \mathbb{R}^{m}$ and $\textbf{y} \in \mathbb{R}^{n}$, the {\bf outer product} $\textbf{xy}^{T} \in \mathbb{R}^{m\times n}$
+is a matrix whose entries are given by $({xy}^{T})_{ij}=x_{i}y_{j}$,
+
+
+\begin{equation*}
+\textbf{xy}^{T} \in \mathbb{R}^{m\times n} = \left[\begin{array}{c}
+x_{1} \\ x_{2} \\ \vdots \\ x_{m}\end{array}\right] \left[\begin{array}{cccc}
+y_{1} &
+y_{2} &
+\ldots &
+y_{n}
+\end{array}\right] =   \left[\begin{array}{cccc}
+x_{1}y_{1} & x_{1}y_{2} & \ldots & x_{1}y_{n} \\
+x_{2}y_{1} & x_{2}y_{2} & \ldots & x_{2}y_{n} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{m}y_{1} & x_{m}y_{2} & \ldots & x_{m}y_{n} \\
+\end{array}\right].
+\end{equation*}
+
+\begin{python}
+np.outer(a,b)
+array([[1, 1],
+       [2, 2]])
+\end{python}
+
+
+\item The {\bf identity matrix}, denoted $\textbf{I}\in \mathbb{R}^{n\times n}$, is a square matrix with ones on the diagonal and zeros 
+everywhere else. That is,
+\begin{equation*}
+I_{ij}=\left\{\begin{array}{cc}
+1 & i=j \\
+0 & i\neq j
+\end{array}\right.
+\end{equation*}
+It has the property that for all $\textbf{A} \in \mathbb{R}^{n \times n}$, $\textbf{AI} = \textbf{A} = \textbf{IA}.$
+
+\begin{python}
+I = np.eye(2)
+x = np.array([2.3, 3.4])
+
+print(I)
+print(np.dot(I,x))
+
+[[ 1.,  0.],
+ [ 0.,  1.]]
+[2.3, 3.4]
+\end{python}
+
+\item A {\bf diagonal matrix} is a matrix where all non-diagonal elements are $0$.
+
+
+\item The {\bf transpose} of a matrix results from ``'flipping'' the rows and columns. 
+Given a matrix $\textbf{A} \in \mathbb{R}^{m\times n}$, the transpose $\textbf{A}^{T} \in \mathbb{R}^{n\times m}$
+is the $n \times m$ matrix whose entries are given by $(A^{T})_{ij}= A_{ji}$.
+
+Also, $\begin{array}{ccccc}(\textbf{A}^{T})^{T}= \textbf{A}; &  & (\textbf{AB})^{T}=\textbf{B}^{T}\textbf{A}^{T}; & & (\textbf{A}+\textbf{B})^{T}= \textbf{A}^{T}+\textbf{B}^{T} \end{array}$
+
+In numpy, you can access the transpose of a matrix as the \code{T} attribute:
+
+\begin{python}
+A = np.array([ [1, 2], [3, 4] ])
+print(A.T)
+\end{python}
+
+\item A square matrix $\textbf{A} \in \mathbb{R}^{n\times n}$ is {\bf symmetric} if  $\textbf{A}=\textbf{A}^{T}$.
+
+\item The {\bf trace} of a square matrix $\textbf{A} \in \mathbb{R}^{n\times n}$ is the sum of the diagonal
+elements, tr$(\textbf{A})= \sum\limits_{i=1}^{n} A_{ii}$
+
+\end{itemize}
+\subsection{Norms}
+The {\bf norm} of a vector is informally the measure of the ``length'' of the vector. The commonly used Euclidean or $\ell_{2}$ norm is given by
+\begin{equation*}
+\|\textbf{x}\|_{2}=\sqrt{\sum\limits_{i=1}^{n} x_{i}^{2}}.
+\end{equation*}
+
+\begin{itemize}
+\item More generally, the $\ell_{p}$ norm of a vector $\textbf{x} \in \mathbb{R}^{n}$, where $p \geq 1$ is defined as 
+\end{itemize}
+\begin{equation*}
+\|\textbf{x}\|_{p}=\left(\sum\limits_{i=1}^{n}|x_{i}|^{p}\right)^{1/p}.
+\end{equation*}
+Note: $\begin{array}{ccc} \ell_{1} \text{ norm}: \|\textbf{x}\|_{1} = \sum\limits_{i=1}^{n} |x_{i}| && \ell_{\infty} \text{ norm}: \|\textbf{x}\|_{\infty} = \max\limits_{i} |x_{i}| \end{array}$.
+
+\subsection{Linear Independence, Rank, and Orthogonal Matrices}
+A set of vectors $\{\textbf{x}_{1},\textbf{x}_{2},\ldots,\textbf{x}_{n}\} \subset \mathbb{R}^{m}$ is said to be {\bf (linearly) independent} if no vector can be represented as a linear combination of the remaining vectors. Conversely, if one vector belonging to the set can be represented as a linear combination of the remaining vectors, then the vectors are said to be {\bf linearly dependent}. That is, if 
+\begin{equation*}
+\textbf{x}_{j}=\sum\limits_{i\neq j}\alpha_{i}\textbf{x}_{i}
+\end{equation*}
+for some $j \in \{1,\ldots,n\}$ and some scalar values $\alpha_{1}, \ldots, \alpha_{i-1}, \alpha_{i+1}, \ldots, \alpha_{n} \in \mathbb{R}$. 
+
+\begin{itemize}
+\item The {\bf rank} of a matrix is the number of linearly independent columns, which is always equal to the number of linearly independent rows.
+\item For $\textbf{A} \in R^{m\times n}$, rank$(\textbf{A}) \leq$ min$(m,n)$. If rank$(\textbf{A})=$ min$(m,n)$, then $\textbf{A}$ is said
+to be  {\bf full rank}.
+\item For $\textbf{A} \in R^{m\times n}$, rank$(\textbf{A})=$ rank$(\textbf{A}^{T})$.
+\item For $\textbf{A} \in R^{m\times n}$,  $\textbf{B} \in R^{n\times p}$, rank$(\textbf{AB}) \leq$ min$($rank$(\textbf{A})$,rank$(\textbf{B})$).
+\item For $\textbf{A},\textbf{B} \in R^{m\times n}$, rank$(\textbf{A}+\textbf{B}) \leq$ rank$(\textbf{A})$ + rank$(\textbf{B})$.
+\item Two vectors $\textbf{x},\textbf{y} \in \mathbb{R}^{n}$ are {\bf orthogonal} if $\textbf{x}^{T}\textbf{y}=0$. A square matrix $\textbf{U} \in \mathbb{R}^{n\times n}$ is orthogonal if all its columns are orthogonal to each other and are normalized ($\|\textbf{x}\|_{2} = 1$), It follows that
+\begin{equation*}
+\textbf{U}^{T}\textbf{U}=\textbf{I}=\textbf{UU}^{T}.
+\end{equation*}
+\end{itemize}
+
+
+% \begin{example}
+% {\bf (Least squares)} Given a full rank matrix $A \in \mathbb{R}^{m\times n}$ and a vector $b\in \mathbb{m}$ such that $b \notin \mathcal{R}(A)$,
+% where $\mathcal{R}(A)$ is the vector space of the columns of matrix $A$. In this case, it is not possible to find a 
+% vector $x \in \mathbb{R}^{n}$, such that $Ax=b$. So, instead we want to find a vector $x$ such that $Ax$ is as close as
+% possible to $b$, as measured by the $\ell_{2}$ norm $\|Ax-b\|_{2}^{2}$.
+
+% Using the fact that $\|x\|_{2}^{2}=x^{T}x$, we have
+% \begin{eqnarray*}
+% \| Ax-b\|_{2}^{2}&=& (Ax-b)^{T}(Ax-b) \\
+% &=&  x^{T}A^{T}Ax-2b^{T}Ax+b^{T}b
+% \end{eqnarray*}
+
+% Taking gradient with respect to x, we have
+% \begin{eqnarray*}
+% \nabla_{x}(x^{T}A^{T}Ax - 2b^{T}Ax + b^{T}b) &=&\nabla_{x}x^{T}A^{T}Ax - \nabla_{x}2b^{T}Ax + \nabla_{x}b^{T}b \\
+% 	&=&2A^{T}Ax-2A^{T}b
+% \end{eqnarray*}
+
+% Setting this last expression to zero and solving for $x$, gives the {\bf normal equations} for the least-squares
+% problem:
+% \begin{equation*}
+% x=(A^{T}A)^{-1}A^{T}b
+% \end{equation*}
+
+% \end{example}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../../guide"
+%%% End: 
